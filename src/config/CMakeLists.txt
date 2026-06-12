@@ -1,6 +1,6 @@
-add_library(game STATIC game.cpp)
+add_library(config STATIC config.cpp)
 target_include_directories(
-    game
+    config
     PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}
     ${CMAKE_SOURCE_DIR}/src

@@ -6,6 +6,7 @@
 .zed/
 .cache/
 pyrightconfig.json
+.clang-format
 
 # Prerequisites
 *.d

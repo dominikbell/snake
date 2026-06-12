@@ -1,6 +1,7 @@
 # snake
-A simple snake game
 
-# Requirements
+A simple snake game.
 
-[ ] [SFML](https://www.sfml-dev.org/) for GUI
+## Requirements
+
+- [ ] [SFML](https://www.sfml-dev.org/) for GUI
