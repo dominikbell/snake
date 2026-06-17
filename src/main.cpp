@@ -7,7 +7,7 @@ int main() {
   Game game(config);
   game.start();
 
-  while (game.m_is_running) {
+  while (game.isRunning()) {
     game.update_state();
     game.redraw();
     game.wait();
