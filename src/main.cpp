@@ -1,14 +1,16 @@
 #include "config/config.hpp"
 #include "game/game.hpp"
+#include "snake/snake.hpp"
 
 int main() {
   Configuration config{get_configuration()};
 
   Game game(config);
-  game.start();
+  Snake snake {game.start()};
 
   while (game.isRunning()) {
-    game.update_state();
+    game.handleInput();
+    game.update_state(snake);
     game.redraw();
     game.wait();
   }

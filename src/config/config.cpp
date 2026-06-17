@@ -1,14 +1,13 @@
 #include "config.hpp"
 
-#include <cstdint>
 #include <iostream>
 
 Configuration get_configuration() {
-  int grid_height {10};
-  int user_grid_height {0};
-  int grid_width {15};
-  int user_grid_width {0};
-  int game_speed {1000};
+  unsigned int grid_height {10};
+  unsigned int user_grid_height {0};
+  unsigned int grid_width {15};
+  unsigned int user_grid_width {0};
+  unsigned int game_speed {1000};
   bool reflective {false};
 
   if (false) {
@@ -27,8 +26,8 @@ Configuration get_configuration() {
     }
   }
 
-  uint32_t window_height {static_cast<uint32_t>(grid_height * 10)};
-  uint32_t window_width {static_cast<uint32_t>(grid_width * 10)};
+  unsigned int window_height {static_cast<unsigned int>(grid_height * 40)};
+  unsigned int window_width {static_cast<unsigned int>(grid_width * 40)};
 
   std::cout << "Grid size: " << grid_width << " x " << grid_height << '\n';
   return {grid_height, grid_width, window_height, window_width, game_speed, reflective};
