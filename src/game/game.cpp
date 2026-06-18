@@ -39,8 +39,8 @@ std::vector<Segment> make_body(const Segment& head) {
 
 Snake Game::start() {
   // Have to do this because window size is in unsigned int but everything else is in floats...
-  unsigned int window_width{static_cast<unsigned int>(m_config.m_pixels_per_cell) * m_config.m_grid_width};
-  unsigned int window_height{static_cast<unsigned int>(m_config.m_pixels_per_cell) * m_config.m_grid_height};
+  unsigned int window_width {static_cast<unsigned int>(m_config.m_pixels_per_cell) * m_config.m_grid_width};
+  unsigned int window_height {static_cast<unsigned int>(m_config.m_pixels_per_cell) * m_config.m_grid_height};
 
   m_window.create(sf::VideoMode({window_width, window_height}), "Snake Game");
   m_isRunning = true;
@@ -65,7 +65,40 @@ Snake Game::start() {
   return {1, Direction::LEFT, head, body};
 }
 
-void Game::update_state(Snake& snake) { std::cout << "One game step.\n"; }
+void Game::update_state(Snake& snake) {
+  std::cout << "One game step.\n";
+
+  switch (snake.m_direction) {
+    case Direction::LEFT: {
+      snake.m_head.x -= 1;
+      for (Segment& body_part : snake.m_body) {
+        body_part.x -= 1;
+      }
+      break;
+    }
+    case Direction::RIGHT: {
+      snake.m_head.x += 1;
+      for (Segment& body_part : snake.m_body) {
+        body_part.x += 1;
+      }
+      break;
+    }
+    case Direction::UP: {
+      snake.m_head.y -= 1;
+      for (Segment& body_part : snake.m_body) {
+        body_part.y -= 1;
+      }
+      break;
+    }
+    case Direction::DOWN: {
+      snake.m_head.y += 1;
+      for (Segment& body_part : snake.m_body) {
+        body_part.y += 1;
+      }
+      break;
+    }
+  }
+}
 
 void Game::redraw(const Snake& snake) {
   m_window.clear();
@@ -85,7 +118,7 @@ void Game::wait() {
   std::this_thread::sleep_for(std::chrono::milliseconds(m_config.m_game_speed));
 }
 
-void Game::handleInput() {
+void Game::handleInput(Snake& snake) {
   while (const std::optional event = m_window.pollEvent()) {
     if (event->is<sf::Event::Closed>()) {
       m_isRunning = false;
@@ -96,18 +129,22 @@ void Game::handleInput() {
       switch (keyPressed->code) {
         case sf::Keyboard::Key::Up: {
           std::cout << "Pressed Up." << std::endl;
+          snake.m_direction = Direction::UP;
           break;
         }
         case sf::Keyboard::Key::Down: {
           std::cout << "Pressed Down." << std::endl;
+          snake.m_direction = Direction::DOWN;
           break;
         }
         case sf::Keyboard::Key::Left: {
           std::cout << "Pressed Left." << std::endl;
+          snake.m_direction = Direction::LEFT;
           break;
         }
         case sf::Keyboard::Key::Right: {
           std::cout << "Pressed Right." << std::endl;
+          snake.m_direction = Direction::RIGHT;
           break;
         }
         default: {

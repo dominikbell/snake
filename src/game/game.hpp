@@ -17,7 +17,7 @@ struct Game {
   void update_state(Snake& snake);
   void redraw(const Snake& snake);
   void wait();
-  void handleInput();
+  void handleInput(Snake& snake);
 
   bool isRunning() { return m_isRunning; }
 

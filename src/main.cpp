@@ -10,7 +10,7 @@ int main() {
   game.redraw(snake);
 
   while (game.isRunning()) {
-    game.handleInput();
+    game.handleInput(snake);
     game.update_state(snake);
     game.redraw(snake);
     game.wait();
