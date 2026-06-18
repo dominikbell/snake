@@ -47,10 +47,14 @@ Configuration get_configuration() {
   }
 
   float pixels_per_cell {40.0f};
-  if (file.count("pixels_per_cell")) {
-    pixels_per_cell = file["pixels_per_cell"];
+  if (file.count("cell_size")) {
+    pixels_per_cell = file["cell_size"];
   }
-  bool reflective {false};
 
-  return {grid_height, grid_width, pixels_per_cell, game_speed, reflective};
+  bool periodic {false};
+  if (file.count("periodic")) {
+    periodic = file["periodic"];
+  }
+
+  return {grid_height, grid_width, pixels_per_cell, game_speed, periodic};
 }
