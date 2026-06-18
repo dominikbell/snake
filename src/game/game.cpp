@@ -9,11 +9,11 @@
 #include "config/config.hpp"
 #include "snake/snake.hpp"
 
-Segment make_head(const Configuration& config) {
+Location make_head(const Configuration& config) {
   std::random_device rd;
   std::mt19937 engine(rd());
 
-  // start at 2 an subtract 2 (4 for width because body has some length) so snake doesnt start at the edge
+  // start at 2 an subtract 2 (adjust width because body has some length) so snake doesn't start at the edge
   std::uniform_int_distribution<int> gen_width(2, config.m_grid_width - 2 - config.start_length);
   std::uniform_int_distribution<int> gen_height(2, config.m_grid_height - 2);
 
@@ -25,9 +25,9 @@ Segment make_head(const Configuration& config) {
   return {start_x, start_y};
 }
 
-std::vector<Segment> make_body(const Configuration& config, const Segment& head) {
-  std::vector<Segment> body;
-  Segment new_part {head};
+std::vector<Location> make_body(const Configuration& config, const Location& head) {
+  std::vector<Location> body;
+  Location new_part {head};
   for (int k = 0; k < config.start_length; k++) {
     new_part.x = head.x + k + 1;
     body.push_back(new_part);
@@ -58,18 +58,13 @@ Snake Game::start() {
   m_body_block.setOutlineThickness(0.5f);
 
   // Make head and body of the snake
-  Segment head {make_head(m_config)};
-  std::vector<Segment> body {make_body(m_config, head)};
+  Location head {make_head(m_config)};
+  std::vector<Location> body {make_body(m_config, head)};
 
   return {m_config.start_length, Direction::LEFT, head, body};
 }
 
-void Game::update_state(Snake& snake) {
-  snake.m_body[snake.m_last_body_segment] = snake.m_head;
-  snake.m_last_body_segment -= 1;
-  if (snake.m_last_body_segment < 0) {
-    snake.m_last_body_segment += snake.m_length;
-  }
+void Game::move_snake(Snake& snake) {
   switch (snake.m_direction) {
     case Direction::LEFT: {
       snake.m_head.x -= 1;
@@ -118,13 +113,23 @@ void Game::update_state(Snake& snake) {
   }
 }
 
+void Game::update_state(Snake& snake, Food& food) {
+  snake.m_body[snake.m_last_body_segment] = snake.m_head;
+  snake.m_last_body_segment -= 1;
+  if (snake.m_last_body_segment < 0) {
+    snake.m_last_body_segment += snake.m_length;
+  }
+  move_snake(snake);
+  food.spawn(snake);
+}
+
 void Game::redraw(const Snake& snake) {
   m_window.clear();
 
   m_head_block.setPosition({m_config.grid_to_pixels(snake.m_head.x), m_config.grid_to_pixels(snake.m_head.y)});
   m_window.draw(m_head_block);
 
-  for (Segment body_block : snake.m_body) {
+  for (Location body_block : snake.m_body) {
     m_body_block.setPosition({m_config.grid_to_pixels(body_block.x), m_config.grid_to_pixels(body_block.y)});
     m_window.draw(m_body_block);
   }
@@ -177,7 +182,7 @@ void Game::handleInput(Snake& snake) {
 }
 
 void Game::check_bite(const Snake& snake) {
-  for (Segment body_segment : snake.m_body) {
+  for (Location body_segment : snake.m_body) {
     if (snake.m_head.x == body_segment.x && snake.m_head.y == body_segment.y) {
       game_over();
     }

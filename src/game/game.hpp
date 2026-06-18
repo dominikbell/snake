@@ -5,6 +5,7 @@
 #include <iostream>
 
 #include "config/config.hpp"
+#include "food/food.hpp"
 #include "snake/snake.hpp"
 
 struct Game {
@@ -15,7 +16,8 @@ struct Game {
   sf::RectangleShape m_body_block;
 
   Snake start();
-  void update_state(Snake& snake);
+  void move_snake(Snake& snake);
+  void update_state(Snake& snake, Food& food);
   void redraw(const Snake& snake);
   void wait();
   void handleInput(Snake& snake);
