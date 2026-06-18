@@ -29,6 +29,6 @@ Configuration get_configuration() {
   unsigned int window_height {static_cast<unsigned int>(grid_height * 40)};
   unsigned int window_width {static_cast<unsigned int>(grid_width * 40)};
 
-  std::cout << "Grid size: " << grid_width << " x " << grid_height << '\n';
+  std::cout << "Window size: " << window_height << " x " << window_width << '\n';
   return {grid_height, grid_width, window_height, window_width, game_speed, reflective};
 }

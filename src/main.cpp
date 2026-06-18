@@ -7,11 +7,12 @@ int main() {
 
   Game game(config);
   Snake snake {game.start()};
+  game.redraw(snake);
 
   while (game.isRunning()) {
     game.handleInput();
     game.update_state(snake);
-    game.redraw();
+    game.redraw(snake);
     game.wait();
   }
 

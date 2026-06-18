@@ -9,11 +9,13 @@
 struct Game {
   bool m_isRunning;
   Configuration m_config;
-  sf::RenderWindow window;
+  sf::RenderWindow m_window;
+  sf::RectangleShape m_head_block{sf::Vector2f(20.0f, 20.0f)};
+  sf::RectangleShape m_body_block{sf::Vector2f(20.0f, 20.0f)};
 
   Snake start();
   void update_state(Snake& snake);
-  void redraw();
+  void redraw(const Snake& snake);
   void wait();
   void handleInput();
 
