@@ -1,7 +1,6 @@
 #include "game.hpp"
 
 #include <chrono>
-#include <iostream>
 #include <optional>
 #include <random>
 #include <thread>
@@ -14,12 +13,12 @@ Segment make_head(const Configuration& config) {
   std::random_device rd;
   std::mt19937 engine(rd());
 
-  // start at 2 an subtract 2 (4 for width becasue body has some length) so snake doesnt start at the edge
-  std::uniform_int_distribution<unsigned int> gen_width(2, config.m_grid_width - 2 - config.start_length);
-  std::uniform_int_distribution<unsigned int> gen_height(2, config.m_grid_height - 2);
+  // start at 2 an subtract 2 (4 for width because body has some length) so snake doesnt start at the edge
+  std::uniform_int_distribution<int> gen_width(2, config.m_grid_width - 2 - config.start_length);
+  std::uniform_int_distribution<int> gen_height(2, config.m_grid_height - 2);
 
-  unsigned int start_x = gen_width(engine);
-  unsigned int start_y = gen_height(engine);
+  int start_x = gen_width(engine);
+  int start_y = gen_height(engine);
 
   std::cout << "Start position is: (" << start_x << ", " << start_y << ").\n";
 
@@ -29,7 +28,7 @@ Segment make_head(const Configuration& config) {
 std::vector<Segment> make_body(const Configuration& config, const Segment& head) {
   std::vector<Segment> body;
   Segment new_part {head};
-  for (unsigned int k = 0; k < config.start_length; k++) {
+  for (int k = 0; k < config.start_length; k++) {
     new_part.x = head.x + k + 1;
     body.push_back(new_part);
   }
@@ -74,18 +73,46 @@ void Game::update_state(Snake& snake) {
   switch (snake.m_direction) {
     case Direction::LEFT: {
       snake.m_head.x -= 1;
+      if (snake.m_head.x < 0) {
+        if (m_config.m_periodic) {
+          snake.m_head.x += m_config.m_grid_width;
+        } else {
+          game_over();
+        }
+      }
       break;
     }
     case Direction::RIGHT: {
       snake.m_head.x += 1;
+      if (snake.m_head.x >= m_config.m_grid_width) {
+        if (m_config.m_periodic) {
+          snake.m_head.x -= m_config.m_grid_width;
+        } else {
+          game_over();
+        }
+      }
       break;
     }
     case Direction::UP: {
       snake.m_head.y -= 1;
+      if (snake.m_head.y < 0) {
+        if (m_config.m_periodic) {
+          snake.m_head.y += m_config.m_grid_height;
+        } else {
+          game_over();
+        }
+      }
       break;
     }
     case Direction::DOWN: {
       snake.m_head.y += 1;
+      if (snake.m_head.y >= m_config.m_grid_height) {
+        if (m_config.m_periodic) {
+          snake.m_head.y -= m_config.m_grid_height;
+        } else {
+          game_over();
+        }
+      }
       break;
     }
   }
@@ -119,28 +146,24 @@ void Game::handleInput(Snake& snake) {
     if (const auto* keyPressed = event->getIf<sf::Event::KeyPressed>()) {
       switch (keyPressed->code) {
         case sf::Keyboard::Key::Up: {
-          std::cout << "Pressed Up." << std::endl;
           if (snake.m_direction != Direction::DOWN) {
             snake.m_direction = Direction::UP;
           }
           break;
         }
         case sf::Keyboard::Key::Down: {
-          std::cout << "Pressed Down." << std::endl;
           if (snake.m_direction != Direction::UP) {
             snake.m_direction = Direction::DOWN;
           }
           break;
         }
         case sf::Keyboard::Key::Left: {
-          std::cout << "Pressed Left." << std::endl;
           if (snake.m_direction != Direction::RIGHT) {
             snake.m_direction = Direction::LEFT;
           }
           break;
         }
         case sf::Keyboard::Key::Right: {
-          std::cout << "Pressed Right." << std::endl;
           if (snake.m_direction != Direction::LEFT) {
             snake.m_direction = Direction::RIGHT;
           }
@@ -149,6 +172,14 @@ void Game::handleInput(Snake& snake) {
         default: {
         };
       }
+    }
+  }
+}
+
+void Game::check_bite(const Snake& snake) {
+  for (Segment body_segment : snake.m_body) {
+    if (snake.m_head.x == body_segment.x && snake.m_head.y == body_segment.y) {
+      game_over();
     }
   }
 }

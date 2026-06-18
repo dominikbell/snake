@@ -9,8 +9,8 @@ enum class Direction {
 };
 
 struct Segment {
-  unsigned int x;
-  unsigned int y;
+  int x;
+  int y;
 };
 
 /* In order to move the snake we just move the head by one and replace it with the last body segment.

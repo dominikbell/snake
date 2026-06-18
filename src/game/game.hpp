@@ -2,6 +2,7 @@
 
 #include <SFML/Graphics.hpp>
 #include <SFML/Window.hpp>
+#include <iostream>
 
 #include "config/config.hpp"
 #include "snake/snake.hpp"
@@ -18,10 +19,19 @@ struct Game {
   void redraw(const Snake& snake);
   void wait();
   void handleInput(Snake& snake);
+  void check_bite(const Snake& snake);
 
   bool isRunning() { return m_isRunning; }
 
   Game(const Configuration& config) {
     m_config = config;
+  }
+
+ private:
+  void game_over() {
+    std::cout << "Game over.\n";
+    m_isRunning = false;
+    wait();
+    m_window.close();
   }
 };
