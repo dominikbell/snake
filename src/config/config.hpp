@@ -7,9 +7,10 @@ using json = nlohmann::json;
 struct Configuration {
   unsigned int m_grid_height;
   unsigned int m_grid_width;
-  float m_pixels_per_cell;  // for conversion from grid cell to pixels
+  float m_pixels_per_cell;    // for conversion from grid cell to pixels
   unsigned int m_game_speed;  // time step size in ms
-  bool m_periodic;
+  bool m_periodic;            // If boundaries are transmissible or not (with periodic bc)
+  int start_length;           // Initial length of the snake
 
   float grid_to_pixels(const unsigned int grid) {
     return static_cast<float>(grid) * m_pixels_per_cell;

@@ -27,3 +27,4 @@ The game settings can be adjusted by changing the config file `config/config.jso
 - `game_speed` : The speed of the game (double)
 - `cell_size` : The size of the cells in pixels (float)
 - `periodic` : If the walls should have periodic boundary conditions (boolean)
+- `start_length` : The initial length of the snake (integer)

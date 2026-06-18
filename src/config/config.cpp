@@ -1,7 +1,7 @@
 #include "config.hpp"
 
-#include <iostream>
 #include <fstream>
+#include <iostream>
 
 [[noreturn]]
 void exit_with_failure() {
@@ -56,5 +56,11 @@ Configuration get_configuration() {
     periodic = file["periodic"];
   }
 
-  return {grid_height, grid_width, pixels_per_cell, game_speed, periodic};
+  int start_length {2};
+  if (file.count("start_length")) {
+    int temp {file["start_length"]};
+    start_length = temp - 1;  // becasue length only counts body segments
+  }
+
+  return {grid_height, grid_width, pixels_per_cell, game_speed, periodic, start_length};
 }

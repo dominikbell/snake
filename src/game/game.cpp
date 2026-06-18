@@ -14,8 +14,8 @@ Segment make_head(const Configuration& config) {
   std::random_device rd;
   std::mt19937 engine(rd());
 
-  // start at 2 an subtract 2 so snake doesnt start at the edge
-  std::uniform_int_distribution<unsigned int> gen_width(2, config.m_grid_width - 2);
+  // start at 2 an subtract 2 (4 for width becasue body has some length) so snake doesnt start at the edge
+  std::uniform_int_distribution<unsigned int> gen_width(2, config.m_grid_width - 2 - config.start_length);
   std::uniform_int_distribution<unsigned int> gen_height(2, config.m_grid_height - 2);
 
   unsigned int start_x = gen_width(engine);
@@ -26,11 +26,11 @@ Segment make_head(const Configuration& config) {
   return {start_x, start_y};
 }
 
-std::vector<Segment> make_body(const Segment& head) {
+std::vector<Segment> make_body(const Configuration& config, const Segment& head) {
   std::vector<Segment> body;
   Segment new_part {head};
-  for (unsigned int k = 1; k < 3; k++) {
-    new_part.x = head.x + k;
+  for (unsigned int k = 0; k < config.start_length; k++) {
+    new_part.x = head.x + k + 1;
     body.push_back(new_part);
   }
 
@@ -60,41 +60,32 @@ Snake Game::start() {
 
   // Make head and body of the snake
   Segment head {make_head(m_config)};
-  std::vector<Segment> body {make_body(head)};
+  std::vector<Segment> body {make_body(m_config, head)};
 
-  return {1, Direction::LEFT, head, body};
+  return {m_config.start_length, Direction::LEFT, head, body};
 }
 
 void Game::update_state(Snake& snake) {
-  std::cout << "One game step.\n";
-
+  snake.m_body[snake.m_last_body_segment] = snake.m_head;
+  snake.m_last_body_segment -= 1;
+  if (snake.m_last_body_segment < 0) {
+    snake.m_last_body_segment += snake.m_length;
+  }
   switch (snake.m_direction) {
     case Direction::LEFT: {
       snake.m_head.x -= 1;
-      for (Segment& body_part : snake.m_body) {
-        body_part.x -= 1;
-      }
       break;
     }
     case Direction::RIGHT: {
       snake.m_head.x += 1;
-      for (Segment& body_part : snake.m_body) {
-        body_part.x += 1;
-      }
       break;
     }
     case Direction::UP: {
       snake.m_head.y -= 1;
-      for (Segment& body_part : snake.m_body) {
-        body_part.y -= 1;
-      }
       break;
     }
     case Direction::DOWN: {
       snake.m_head.y += 1;
-      for (Segment& body_part : snake.m_body) {
-        body_part.y += 1;
-      }
       break;
     }
   }
@@ -129,22 +120,30 @@ void Game::handleInput(Snake& snake) {
       switch (keyPressed->code) {
         case sf::Keyboard::Key::Up: {
           std::cout << "Pressed Up." << std::endl;
-          snake.m_direction = Direction::UP;
+          if (snake.m_direction != Direction::DOWN) {
+            snake.m_direction = Direction::UP;
+          }
           break;
         }
         case sf::Keyboard::Key::Down: {
           std::cout << "Pressed Down." << std::endl;
-          snake.m_direction = Direction::DOWN;
+          if (snake.m_direction != Direction::UP) {
+            snake.m_direction = Direction::DOWN;
+          }
           break;
         }
         case sf::Keyboard::Key::Left: {
           std::cout << "Pressed Left." << std::endl;
-          snake.m_direction = Direction::LEFT;
+          if (snake.m_direction != Direction::RIGHT) {
+            snake.m_direction = Direction::LEFT;
+          }
           break;
         }
         case sf::Keyboard::Key::Right: {
           std::cout << "Pressed Right." << std::endl;
-          snake.m_direction = Direction::RIGHT;
+          if (snake.m_direction != Direction::LEFT) {
+            snake.m_direction = Direction::RIGHT;
+          }
           break;
         }
         default: {
