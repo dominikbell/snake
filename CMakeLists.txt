@@ -10,5 +10,8 @@ project(snake_game)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+# Add include folder here so it is seen by everything below
+include_directories(${CMAKE_SOURCE_DIR}/include)
+
 # Add src folder in which the executable is defined
 add_subdirectory(src)

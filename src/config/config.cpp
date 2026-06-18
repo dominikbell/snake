@@ -1,34 +1,56 @@
 #include "config.hpp"
 
 #include <iostream>
+#include <fstream>
 
-Configuration get_configuration() {
-  unsigned int grid_height {10};
-  unsigned int user_grid_height {0};
-  unsigned int grid_width {15};
-  unsigned int user_grid_width {0};
-  unsigned int game_speed {1000};
-  bool reflective {false};
+[[noreturn]]
+void exit_with_failure() {
+  std::exit(EXIT_FAILURE);
+}
 
-  if (false) {
-    // Get grid_width from user, for invalid inputs default will be used
-    std::cout << "Enter the preferred grid width (default is " << grid_width << ") \n";
-    std::cin >> user_grid_width;
-    if (user_grid_width) {
-      grid_width = user_grid_width;
-    }
+json open_file() {
+  // Get the file path and open the stream
+  std::ifstream fileStream("../config/config.json");
 
-    // Get grid_height from user, for invalid inputs default will be used
-    std::cout << "Enter the preferred grid height (default is " << grid_height << ") \n";
-    std::cin >> user_grid_height;
-    if (user_grid_height) {
-      grid_height = user_grid_height;
-    }
+  // Check if file is being edited right now
+  if (!fileStream.is_open()) {
+    std::cerr << "Error: Could not open config file.\n";
   }
 
-  unsigned int window_height {static_cast<unsigned int>(grid_height * 40)};
-  unsigned int window_width {static_cast<unsigned int>(grid_width * 40)};
+  try {
+    json data = json::parse(fileStream);
+    return data;
 
-  std::cout << "Window size: " << window_height << " x " << window_width << '\n';
-  return {grid_height, grid_width, window_height, window_width, game_speed, reflective};
+  } catch (const json::parse_error& e) {
+    std::cerr << "JSON Parse Error: " << e.what() << " at byte " << e.byte << '\n';
+    exit_with_failure();
+  }
+}
+
+Configuration get_configuration() {
+  json file {open_file()};
+
+  unsigned int grid_height {10};
+  if (file.count("grid_height")) {
+    grid_height = file["grid_height"];
+  }
+
+  unsigned int grid_width {15};
+  if (file.count("grid_width")) {
+    grid_width = file["grid_width"];
+  }
+
+  unsigned int game_speed {1000};
+  if (file.count("game_speed")) {
+    double speed_factor {file["game_speed"]};
+    game_speed = static_cast<unsigned int>(speed_factor * 1000.0);
+  }
+
+  float pixels_per_cell {40.0f};
+  if (file.count("pixels_per_cell")) {
+    pixels_per_cell = file["pixels_per_cell"];
+  }
+  bool reflective {false};
+
+  return {grid_height, grid_width, pixels_per_cell, game_speed, reflective};
 }

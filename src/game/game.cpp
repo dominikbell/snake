@@ -13,8 +13,11 @@
 Segment make_head(const Configuration& config) {
   std::random_device rd;
   std::mt19937 engine(rd());
-  std::uniform_int_distribution<unsigned int> gen_width(2, config.m_grid_height);
-  std::uniform_int_distribution<unsigned int> gen_height(2, config.m_grid_height);
+
+  // start at 2 an subtract 2 so snake doesnt start at the edge
+  std::uniform_int_distribution<unsigned int> gen_width(2, config.m_grid_width - 2);
+  std::uniform_int_distribution<unsigned int> gen_height(2, config.m_grid_height - 2);
+
   unsigned int start_x = gen_width(engine);
   unsigned int start_y = gen_height(engine);
 
@@ -26,7 +29,7 @@ Segment make_head(const Configuration& config) {
 std::vector<Segment> make_body(const Segment& head) {
   std::vector<Segment> body;
   Segment new_part {head};
-  for (unsigned int k = 0; k < 3; k++) {
+  for (unsigned int k = 1; k < 3; k++) {
     new_part.x = head.x + k;
     body.push_back(new_part);
   }
@@ -35,8 +38,15 @@ std::vector<Segment> make_body(const Segment& head) {
 }
 
 Snake Game::start() {
-  m_window.create(sf::VideoMode({m_config.m_window_width, m_config.m_window_height}), "Snake Game");
+  // Have to do this because window size is in unsigned int but everything else is in floats...
+  unsigned int window_width{static_cast<unsigned int>(m_config.m_pixels_per_cell) * m_config.m_grid_width};
+  unsigned int window_height{static_cast<unsigned int>(m_config.m_pixels_per_cell) * m_config.m_grid_height};
+
+  m_window.create(sf::VideoMode({window_width, window_height}), "Snake Game");
   m_isRunning = true;
+
+  m_head_block.setSize(sf::Vector2f(m_config.m_pixels_per_cell * 0.9f, m_config.m_pixels_per_cell * 0.9f));
+  m_body_block.setSize(sf::Vector2f(m_config.m_pixels_per_cell * 0.9f, m_config.m_pixels_per_cell * 0.9f));
 
   // Customize head of the snake
   m_head_block.setFillColor(sf::Color::Green);
@@ -60,11 +70,11 @@ void Game::update_state(Snake& snake) { std::cout << "One game step.\n"; }
 void Game::redraw(const Snake& snake) {
   m_window.clear();
 
-  m_head_block.setPosition({static_cast<float>(snake.m_head.x), static_cast<float>(snake.m_head.y)});
+  m_head_block.setPosition({m_config.grid_to_pixels(snake.m_head.x), m_config.grid_to_pixels(snake.m_head.y)});
   m_window.draw(m_head_block);
 
   for (Segment body_block : snake.m_body) {
-    m_body_block.setPosition({static_cast<float>(body_block.x), static_cast<float>(body_block.y)});
+    m_body_block.setPosition({m_config.grid_to_pixels(body_block.x), m_config.grid_to_pixels(body_block.y)});
     m_window.draw(m_body_block);
   }
 
