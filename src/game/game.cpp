@@ -7,6 +7,7 @@
 
 #include "config/config.hpp"
 #include "snake/snake.hpp"
+#include "utils/utils.hpp"
 
 void Game::start() {
   // Have to do this because window size is in unsigned int but everything else is in floats...
@@ -85,18 +86,30 @@ void Game::move_snake_head(Snake& snake) {
   }
 }
 
-void check_eating(const Snake& snake, Food& food) {
+void check_eating(Snake& snake, Food& food) {
   if (snake.m_head.x == food.m_location.x && snake.m_head.y == food.m_location.y) {
     food.m_has_been_eaten = true;
+    snake.m_has_eaten = true;
   }
 }
 
 void Game::update_state(Snake& snake, Food& food) {
-  snake.m_body[snake.m_last_body_segment] = snake.m_head;
-  snake.m_last_body_segment -= 1;
-  if (snake.m_last_body_segment < 0) {
-    snake.m_last_body_segment += snake.m_length;
+  if (snake.m_has_eaten) {
+    // When adding a segment to the snake, keep the order
+    for (size_t index = snake.m_length; index > snake.m_last_body_segment + 1; index--) {
+      snake.m_body[index] = snake.m_body[index - 1];
+    }
+    snake.m_length += 1;
+    snake.m_has_eaten = false;
+    snake.m_body[snake.m_last_body_segment + 1] = snake.m_head;
+  } else {
+    snake.m_body[snake.m_last_body_segment] = snake.m_head;
+    snake.m_last_body_segment -= 1;
+    if (snake.m_last_body_segment < 0) {
+      snake.m_last_body_segment += snake.m_length;
+    }
   }
+
   move_snake_head(snake);
 
   check_eating(snake, food);
@@ -112,8 +125,10 @@ void Game::redraw(const Snake& snake, const Food& food) {
   m_head_block.setPosition({m_config.grid_to_pixels(snake.m_head.x), m_config.grid_to_pixels(snake.m_head.y)});
   m_window.draw(m_head_block);
 
-  for (Location body_block : snake.m_body) {
-    m_body_block.setPosition({m_config.grid_to_pixels(body_block.x), m_config.grid_to_pixels(body_block.y)});
+  for (size_t index = 0; index < snake.m_length; index++) {
+    m_body_block.setPosition(
+        {m_config.grid_to_pixels(snake.m_body[index].x),
+         m_config.grid_to_pixels(snake.m_body[index].y)});
     m_window.draw(m_body_block);
   }
 
