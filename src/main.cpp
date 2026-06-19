@@ -15,7 +15,7 @@ int main() {
   game.redraw(snake, food);
 
   while (game.isRunning()) {
-    game.handleInput(snake);
+    game.handleInput();
     game.update_state(snake, food);
     game.check_bite(snake);
     game.redraw(snake, food);

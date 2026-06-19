@@ -16,7 +16,7 @@ struct Game {
   void update_state(Snake& snake, Food& food);
   void redraw(const Snake& snake, const Food& food);
   void wait();
-  void handleInput(Snake& snake);
+  void handleInput();
   void check_bite(const Snake& snake);
 
   bool isRunning() { return m_isRunning; }
@@ -27,6 +27,7 @@ struct Game {
 
  private:
   Configuration m_config;
+  Direction m_direction_input;
   sf::RenderWindow m_window;
   sf::RectangleShape m_head_block;
   sf::RectangleShape m_body_block;

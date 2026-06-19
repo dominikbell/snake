@@ -14,8 +14,8 @@ void Game::setup_grid() {
 
   sf::Color lightGrey(211, 211, 211, 100);  // RGB + Alpha (100 out of 255 for transparency)
 
-  float dashLength = 4.f;
-  float gapLength = 4.f;
+  float dashLength = 4.0f;
+  float gapLength = 4.0f;
 
   float window_height {m_config.grid_to_pixels(m_config.m_grid_height)};
   float window_width {m_config.grid_to_pixels(m_config.m_grid_width)};
@@ -23,7 +23,7 @@ void Game::setup_grid() {
   // --- Draw Vertical Grid Lines ---
   for (int col = 1; col < m_config.m_grid_width; ++col) {
     float x = col * m_config.m_pixels_per_cell;
-    float y = 0.f;
+    float y = 0.0f;
 
     while (y < window_height) {
       // Segment start
@@ -42,7 +42,7 @@ void Game::setup_grid() {
   // --- Draw Horizontal Grid Lines ---
   for (int row = 1; row < m_config.m_grid_height; ++row) {
     float y = row * m_config.m_pixels_per_cell;
-    float x = 0.f;
+    float x = 0.0f;
 
     while (x < window_width) {
       // Segment start
@@ -146,6 +146,8 @@ void check_eating(Snake& snake, Food& food) {
 }
 
 void Game::update_state(Snake& snake, Food& food) {
+  snake.update_direction(m_direction_input);
+
   if (snake.m_has_eaten) {
     // When adding a segment to the snake, keep the order
     for (size_t index = snake.m_length; index > snake.m_last_body_segment + 1; index--) {
@@ -200,7 +202,7 @@ void Game::wait() {
   std::this_thread::sleep_for(std::chrono::milliseconds(m_config.m_game_speed));
 }
 
-void Game::handleInput(Snake& snake) {
+void Game::handleInput() {
   while (const std::optional event = m_window.pollEvent()) {
     if (event->is<sf::Event::Closed>()) {
       m_isRunning = false;
@@ -210,27 +212,35 @@ void Game::handleInput(Snake& snake) {
     if (const auto* keyPressed = event->getIf<sf::Event::KeyPressed>()) {
       switch (keyPressed->code) {
         case sf::Keyboard::Key::Up: {
-          if (snake.m_direction != Direction::DOWN) {
-            snake.m_direction = Direction::UP;
-          }
+          m_direction_input = Direction::UP;
+          break;
+        }
+        case sf::Keyboard::Key::W: {
+          m_direction_input = Direction::UP;
           break;
         }
         case sf::Keyboard::Key::Down: {
-          if (snake.m_direction != Direction::UP) {
-            snake.m_direction = Direction::DOWN;
-          }
+          m_direction_input = Direction::DOWN;
+          break;
+        }
+        case sf::Keyboard::Key::S: {
+          m_direction_input = Direction::DOWN;
           break;
         }
         case sf::Keyboard::Key::Left: {
-          if (snake.m_direction != Direction::RIGHT) {
-            snake.m_direction = Direction::LEFT;
-          }
+          m_direction_input = Direction::LEFT;
+          break;
+        }
+        case sf::Keyboard::Key::A: {
+          m_direction_input = Direction::LEFT;
           break;
         }
         case sf::Keyboard::Key::Right: {
-          if (snake.m_direction != Direction::LEFT) {
-            snake.m_direction = Direction::RIGHT;
-          }
+          m_direction_input = Direction::RIGHT;
+          break;
+        }
+        case sf::Keyboard::Key::D: {
+          m_direction_input = Direction::RIGHT;
           break;
         }
         default: {

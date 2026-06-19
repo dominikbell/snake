@@ -16,8 +16,34 @@ struct Snake {
   std::vector<Location> m_body;
   int m_last_body_segment;  // Used to denote which body part is the last one
 
-  Location make_head(const Configuration& config);
-  std::vector<Location> make_body(const Configuration& config, const Location& head);
+  void update_direction(const Direction new_direction) {
+    switch (new_direction) {
+      case Direction::LEFT: {
+        if (m_direction != Direction::RIGHT) {
+          m_direction = new_direction;
+        }
+        break;
+      }
+      case Direction::RIGHT: {
+        if (m_direction != Direction::LEFT) {
+          m_direction = new_direction;
+        }
+        break;
+      }
+      case Direction::UP: {
+        if (m_direction != Direction::DOWN) {
+          m_direction = new_direction;
+        }
+        break;
+      }
+      case Direction::DOWN: {
+        if (m_direction != Direction::UP) {
+          m_direction = new_direction;
+        }
+        break;
+      }
+    }
+  }
 
   // TODO: make start direction random
   Snake(const Configuration& config)
@@ -28,4 +54,8 @@ struct Snake {
     m_head = make_head(config);
     m_body = make_body(config, m_head);
   }
+
+  private:
+    Location make_head(const Configuration& config);
+    std::vector<Location> make_body(const Configuration& config, const Location& head);
 };
