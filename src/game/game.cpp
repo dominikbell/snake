@@ -9,6 +9,56 @@
 #include "snake/snake.hpp"
 #include "utils/utils.hpp"
 
+void Game::setup_grid() {
+  m_grid.setPrimitiveType(sf::PrimitiveType::Lines);
+
+  sf::Color lightGrey(211, 211, 211, 100);  // RGB + Alpha (100 out of 255 for transparency)
+
+  float dashLength = 4.f;
+  float gapLength = 4.f;
+
+  float window_height {m_config.grid_to_pixels(m_config.m_grid_height)};
+  float window_width {m_config.grid_to_pixels(m_config.m_grid_width)};
+
+  // --- Draw Vertical Grid Lines ---
+  for (int col = 1; col < m_config.m_grid_width; ++col) {
+    float x = col * m_config.m_pixels_per_cell;
+    float y = 0.f;
+
+    while (y < window_height) {
+      // Segment start
+      m_grid.append(sf::Vertex({x, y}, lightGrey));
+
+      y += dashLength;
+      if (y > window_height) y = window_height;
+
+      // Segment end
+      m_grid.append(sf::Vertex({x, y}, lightGrey));
+
+      y += gapLength;  // Skip the gap
+    }
+  }
+
+  // --- Draw Horizontal Grid Lines ---
+  for (int row = 1; row < m_config.m_grid_height; ++row) {
+    float y = row * m_config.m_pixels_per_cell;
+    float x = 0.f;
+
+    while (x < window_width) {
+      // Segment start
+      m_grid.append(sf::Vertex({x, y}, lightGrey));
+
+      x += dashLength;
+      if (x > window_width) x = window_width;
+
+      // Segment end
+      m_grid.append(sf::Vertex({x, y}, lightGrey));
+
+      x += gapLength;  // Skip the gap
+    }
+  }
+}
+
 void Game::start() {
   // Have to do this because window size is in unsigned int but everything else is in floats...
   unsigned int window_width {static_cast<unsigned int>(m_config.m_pixels_per_cell) * m_config.m_grid_width};
@@ -35,6 +85,8 @@ void Game::start() {
   m_food_shape.setFillColor(sf::Color::Red);
   m_food_shape.setOutlineColor(sf::Color::White);
   m_food_shape.setOutlineThickness(0.5f);
+
+  setup_grid();
 }
 
 void Game::move_snake_head(Snake& snake) {
@@ -120,6 +172,11 @@ void Game::update_state(Snake& snake, Food& food) {
 
 void Game::redraw(const Snake& snake, const Food& food) {
   m_window.clear();
+
+  // Draw grid
+  if (m_config.m_show_grid) {
+    m_window.draw(m_grid);
+  }
 
   // Draw snake
   m_head_block.setPosition({m_config.grid_to_pixels(snake.m_head.x), m_config.grid_to_pixels(snake.m_head.y)});

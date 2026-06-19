@@ -10,7 +10,8 @@ struct Configuration {
   float m_pixels_per_cell;    // for conversion from grid cell to pixels
   unsigned int m_game_speed;  // time step size in ms
   bool m_periodic;            // If boundaries are transmissible or not (with periodic bc)
-  int start_length;           // Initial length of the snake
+  int m_start_length;         // Initial length of the snake
+  bool m_show_grid;           // If a grid should be shown
 
   float grid_to_pixels(const unsigned int grid) {
     return static_cast<float>(grid) * m_pixels_per_cell;

@@ -62,5 +62,10 @@ Configuration get_configuration() {
     start_length = temp - 1;  // becasue length only counts body segments
   }
 
-  return {grid_height, grid_width, pixels_per_cell, game_speed, periodic, start_length};
+  bool grid {false};
+  if (file.count("show_grid")) {
+    grid = file["show_grid"];
+  }
+
+  return {grid_height, grid_width, pixels_per_cell, game_speed, periodic, start_length, grid};
 }

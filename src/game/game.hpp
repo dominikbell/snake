@@ -10,11 +10,6 @@
 
 struct Game {
   bool m_isRunning;
-  Configuration m_config;
-  sf::RenderWindow m_window;
-  sf::RectangleShape m_head_block;
-  sf::RectangleShape m_body_block;
-  sf::RectangleShape m_food_shape;
 
   void start();
   void move_snake_head(Snake& snake);
@@ -31,10 +26,19 @@ struct Game {
   }
 
  private:
+  Configuration m_config;
+  sf::RenderWindow m_window;
+  sf::RectangleShape m_head_block;
+  sf::RectangleShape m_body_block;
+  sf::RectangleShape m_food_shape;
+  sf::VertexArray m_grid;
+
   void game_over() {
     std::cout << "Game over.\n";
     m_isRunning = false;
     wait();
     m_window.close();
   }
+
+  void setup_grid();
 };

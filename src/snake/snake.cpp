@@ -9,7 +9,7 @@ Location Snake::make_head(const Configuration& config) {
 
   // start at 2 an subtract 2 (adjust width because body has some length) so snake doesn't start at the edge
   // TODO: make start direction random
-  std::uniform_int_distribution<int> gen_width(2, config.m_grid_width - 2 - config.start_length);
+  std::uniform_int_distribution<int> gen_width(2, config.m_grid_width - 2 - config.m_start_length);
   std::uniform_int_distribution<int> gen_height(2, config.m_grid_height - 2);
 
   int start_x = gen_width(engine);
@@ -29,7 +29,7 @@ std::vector<Location> Snake::make_body(const Configuration& config, const Locati
   // Because start direction is left
   // TODO: make start direction random
   new_part.y = head.y;
-  for (int k = 0; k < config.start_length; k++) {
+  for (int k = 0; k < config.m_start_length; k++) {
     new_part.x = head.x + k + 1;
     body[k] = new_part;
   }
