@@ -48,14 +48,15 @@ struct Snake {
   // TODO: make start direction random
   Snake(const Configuration& config)
       : m_length(config.m_start_length),
-        m_direction(Direction::LEFT),
         m_has_eaten(false),
         m_last_body_segment(config.m_start_length - 1) {
+    m_direction = make_direction();
     m_head = make_head(config);
-    m_body = make_body(config, m_head);
+    m_body = make_body(config);
   }
 
-  private:
-    Location make_head(const Configuration& config);
-    std::vector<Location> make_body(const Configuration& config, const Location& head);
+ private:
+  Location make_head(const Configuration& config);
+  std::vector<Location> make_body(const Configuration& config);
+  Direction make_direction();
 };
