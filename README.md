@@ -18,6 +18,8 @@ cmake --build .
 ./src/snake_game
 ```
 
+The snake can be controlled with the arrow keys or WASD.
+
 ## Configuration
 
 The game settings can be adjusted by changing the config file `config/config.json`. The following parameters can be set:
