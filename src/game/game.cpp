@@ -2,41 +2,13 @@
 
 #include <chrono>
 #include <optional>
-#include <random>
 #include <thread>
 #include <vector>
 
 #include "config/config.hpp"
 #include "snake/snake.hpp"
 
-Location make_head(const Configuration& config) {
-  std::random_device rd;
-  std::mt19937 engine(rd());
-
-  // start at 2 an subtract 2 (adjust width because body has some length) so snake doesn't start at the edge
-  std::uniform_int_distribution<int> gen_width(2, config.m_grid_width - 2 - config.start_length);
-  std::uniform_int_distribution<int> gen_height(2, config.m_grid_height - 2);
-
-  int start_x = gen_width(engine);
-  int start_y = gen_height(engine);
-
-  std::cout << "Start position is: (" << start_x << ", " << start_y << ").\n";
-
-  return {start_x, start_y};
-}
-
-std::vector<Location> make_body(const Configuration& config, const Location& head) {
-  std::vector<Location> body;
-  Location new_part {head};
-  for (int k = 0; k < config.start_length; k++) {
-    new_part.x = head.x + k + 1;
-    body.push_back(new_part);
-  }
-
-  return body;
-}
-
-Snake Game::start() {
+void Game::start() {
   // Have to do this because window size is in unsigned int but everything else is in floats...
   unsigned int window_width {static_cast<unsigned int>(m_config.m_pixels_per_cell) * m_config.m_grid_width};
   unsigned int window_height {static_cast<unsigned int>(m_config.m_pixels_per_cell) * m_config.m_grid_height};
@@ -46,6 +18,7 @@ Snake Game::start() {
 
   m_head_block.setSize(sf::Vector2f(m_config.m_pixels_per_cell * 0.9f, m_config.m_pixels_per_cell * 0.9f));
   m_body_block.setSize(sf::Vector2f(m_config.m_pixels_per_cell * 0.9f, m_config.m_pixels_per_cell * 0.9f));
+  m_food_shape.setSize(sf::Vector2f(m_config.m_pixels_per_cell * 0.9f, m_config.m_pixels_per_cell * 0.9f));
 
   // Customize head of the snake
   m_head_block.setFillColor(sf::Color::Green);
@@ -57,14 +30,13 @@ Snake Game::start() {
   m_body_block.setOutlineColor(sf::Color::White);
   m_body_block.setOutlineThickness(0.5f);
 
-  // Make head and body of the snake
-  Location head {make_head(m_config)};
-  std::vector<Location> body {make_body(m_config, head)};
-
-  return {m_config.start_length, Direction::LEFT, head, body};
+  // Customize food block
+  m_food_shape.setFillColor(sf::Color::Red);
+  m_food_shape.setOutlineColor(sf::Color::White);
+  m_food_shape.setOutlineThickness(0.5f);
 }
 
-void Game::move_snake(Snake& snake) {
+void Game::move_snake_head(Snake& snake) {
   switch (snake.m_direction) {
     case Direction::LEFT: {
       snake.m_head.x -= 1;
@@ -113,19 +85,30 @@ void Game::move_snake(Snake& snake) {
   }
 }
 
+void check_eating(const Snake& snake, Food& food) {
+  if (snake.m_head.x == food.m_location.x && snake.m_head.y == food.m_location.y) {
+    food.m_has_been_eaten = true;
+  }
+}
+
 void Game::update_state(Snake& snake, Food& food) {
   snake.m_body[snake.m_last_body_segment] = snake.m_head;
   snake.m_last_body_segment -= 1;
   if (snake.m_last_body_segment < 0) {
     snake.m_last_body_segment += snake.m_length;
   }
-  move_snake(snake);
-  food.spawn(snake);
+  move_snake_head(snake);
+
+  check_eating(snake, food);
+  if (food.m_has_been_eaten) {
+    food.spawn(snake);
+  }
 }
 
-void Game::redraw(const Snake& snake) {
+void Game::redraw(const Snake& snake, const Food& food) {
   m_window.clear();
 
+  // Draw snake
   m_head_block.setPosition({m_config.grid_to_pixels(snake.m_head.x), m_config.grid_to_pixels(snake.m_head.y)});
   m_window.draw(m_head_block);
 
@@ -133,6 +116,10 @@ void Game::redraw(const Snake& snake) {
     m_body_block.setPosition({m_config.grid_to_pixels(body_block.x), m_config.grid_to_pixels(body_block.y)});
     m_window.draw(m_body_block);
   }
+
+  // Draw food
+  m_food_shape.setPosition({m_config.grid_to_pixels(food.m_location.x), m_config.grid_to_pixels(food.m_location.y)});
+  m_window.draw(m_food_shape);
 
   m_window.display();
 }

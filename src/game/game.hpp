@@ -14,11 +14,12 @@ struct Game {
   sf::RenderWindow m_window;
   sf::RectangleShape m_head_block;
   sf::RectangleShape m_body_block;
+  sf::RectangleShape m_food_shape;
 
-  Snake start();
-  void move_snake(Snake& snake);
+  void start();
+  void move_snake_head(Snake& snake);
   void update_state(Snake& snake, Food& food);
-  void redraw(const Snake& snake);
+  void redraw(const Snake& snake, const Food& food);
   void wait();
   void handleInput(Snake& snake);
   void check_bite(const Snake& snake);

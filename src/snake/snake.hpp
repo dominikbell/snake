@@ -2,6 +2,7 @@
 
 #include <vector>
 
+#include "config/config.hpp"
 #include "utils/utils.hpp"
 
 /* In order to move the snake we just move the head by one and replace it with the last body segment.
@@ -12,17 +13,16 @@ struct Snake {
   Direction m_direction;
   Location m_head;
   std::vector<Location> m_body;
-  int m_last_body_segment {0};  // Used to denote which body part is the last one
+  int m_last_body_segment;  // Used to denote which body part is the last one
 
-  Snake(
-      int length,
-      Direction direction,
-      Location head,
-      std::vector<Location> body) {
-    m_length = length;
-    m_direction = direction;
-    m_head = head;
-    m_body = body;
-    m_last_body_segment = length - 1;
+  Location make_head(const Configuration& config);
+  std::vector<Location> make_body(const Configuration& config, const Location& head);
+
+  Snake(const Configuration& config)
+      : m_length(config.start_length),
+        m_direction(Direction::LEFT),
+        m_last_body_segment(config.start_length - 1) {
+    m_head = make_head(config);
+    m_body = make_body(config, m_head);
   }
 };

@@ -8,6 +8,7 @@
 
 struct Food {
   Location m_location;
+  bool m_has_been_eaten;
   std::random_device rd;
   std::mt19937 m_engine {rd()};
   std::uniform_int_distribution<int> m_gen_width;
@@ -15,10 +16,10 @@ struct Food {
 
   void spawn(const Snake& snake);
 
-  Food(const Configuration& config) {
-    std::uniform_int_distribution<int> m_gen_width(0, config.m_grid_width);
-    std::uniform_int_distribution<int> m_gen_height(0, config.m_grid_height);
-  }
+  Food(const Configuration& config)
+      : m_has_been_eaten(false),
+      m_gen_width(0, config.m_grid_width - 1),
+      m_gen_height(0, config.m_grid_height - 1) {}
 
  private:
   bool colliding(const Snake& snake) {
